@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kitchen Timer Alarm Tester</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .stop-btn {
+            background: #f44336;
+        }
+        .stop-btn:hover {
+            background: #da190b;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        input {
+            margin: 5px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            margin: 10px 0;
+        }
+        .param-group {
+            margin: 15px 0;
+        }
+        .description {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍅 Kitchen Timer Alarm Tester</h1>
+    
+    <div class="description">
+        <p><strong>Classic Kitchen Timer Sound:</strong> This recreates the rapid metallic ringing of a mechanical kitchen timer - the "ring-ring-ring-ring" sound that signals your time is up!</p>
+    </div>
+    
+    <div class="controls">
+        <h3>Adjust Sound Parameters:</h3>
+        <div class="param-group">
+            <label>Bell Frequency (Hz):</label>
+            <input type="number" id="bellFreq" value="1800" min="1000" max="4000" step="100">
+            <span style="color: #666;">(1800 = pleasant, 2500 = sharp)</span>
+        </div>
+        <div class="param-group">
+            <label>Ring Speed (rings/sec):</label>
+            <input type="number" id="hammerFreq" value="12" min="5" max="50" step="1">
+            <span style="color: #666;">(12 = gentle, 35 = urgent)</span>
+        </div>
+        <div class="param-group">
+            <label>Duration (seconds):</label>
+            <input type="number" id="duration" value="4" min="2" max="10" step="1">
+        </div>
+        <div class="param-group">
+            <label>Volume:</label>
+            <input type="range" id="volume" value="8" min="5" max="30" step="1">
+            <span id="volumeVal">8%</span>
+        </div>
+        <div class="param-group">
+            <label>Wave Type:</label>
+            <select id="waveType">
+                <option value="square">Square (metallic)</option>
+                <option value="sawtooth">Sawtooth (buzzy)</option>
+                <option value="triangle" selected>Triangle (softer)</option>
+                <option value="sine">Sine (pure tone)</option>
+            </select>
+        </div>
+    </div>
+
+    <button onclick="playAlarm()">⏰ Play Kitchen Timer Alarm</button>
+    <button class="stop-btn" onclick="stopSound()">⏹️ Stop</button>
+
+    <h3>Code Preview:</h3>
+    <pre id="codePreview" style="background: #f5f5f5; padding: 15px; border-radius: 8px; overflow-x: auto;"></pre>
+
+    <script>
+        let audioContext;
+        let currentOscillators = [];
+
+        function ensureCtx() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        function stopSound() {
+            currentOscillators.forEach(osc => {
+                try { 
+                    osc.stop(); 
+                    osc.disconnect();
+                } catch(e) {}
+            });
+            currentOscillators = [];
+        }
+
+        function playAlarm() {
+            const ac = ensureCtx();
+            stopSound();
+            
+            const now = ac.currentTime;
+            
+            // Get values from inputs
+            const bellFreq = parseFloat(document.getElementById('bellFreq').value);
+            const hammerFreq = parseFloat(document.getElementById('hammerFreq').value);
+            const duration = parseFloat(document.getElementById('duration').value);
+            const volume = parseFloat(document.getElementById('volume').value) / 100;
+            const waveType = document.getElementById('waveType').value;
+
+            // Create main gain node
+            const mainGain = ac.createGain();
+            mainGain.gain.value = volume;
+            mainGain.connect(ac.destination);
+
+            // Create the bell tone (carrier)
+            const bellOsc = ac.createOscillator();
+            bellOsc.type = waveType;
+            bellOsc.frequency.value = bellFreq;
+
+            // Create the hammer/modulator for rapid on/off effect
+            const modulator = ac.createOscillator();
+            modulator.type = "square";
+            modulator.frequency.value = hammerFreq;
+
+            // Create gain node for amplitude modulation
+            const modulatorGain = ac.createGain();
+            modulatorGain.gain.value = 0.5; // Modulation depth
+
+            // Connect modulator to control the bell's amplitude
+            modulator.connect(modulatorGain);
+            modulatorGain.connect(mainGain.gain);
+
+            // Add a second bell tone for richness (slightly detuned)
+            const bellOsc2 = ac.createOscillator();
+            bellOsc2.type = waveType;
+            bellOsc2.frequency.value = bellFreq * 1.01; // Slight detune
+
+            // Connect everything
+            bellOsc.connect(mainGain);
+            bellOsc2.connect(mainGain);
+
+            // Start all oscillators
+            bellOsc.start(now);
+            bellOsc2.start(now);
+            modulator.start(now);
+
+            // Stop after duration
+            bellOsc.stop(now + duration);
+            bellOsc2.stop(now + duration);
+            modulator.stop(now + duration);
+            
+            currentOscillators = [bellOsc, bellOsc2, modulator];
+            
+            updateCodePreview();
+        }
+
+        function updateCodePreview() {
+            const bellFreq = document.getElementById('bellFreq').value;
+            const hammerFreq = document.getElementById('hammerFreq').value;
+            const duration = document.getElementById('duration').value;
+            const volume = (document.getElementById('volume').value / 100).toFixed(2);
+            const waveType = document.getElementById('waveType').value;
+            
+            const code = `// Update these values in offscreen.js:
+const bellFreq = ${bellFreq}; // High pitched bell frequency (Hz)
+const hammerFreq = ${hammerFreq}; // Hammer/clapper frequency for rapid ringing
+const duration = ${duration}; // Total duration in seconds
+const volume = ${volume}; // Overall volume
+bellOsc.type = "${waveType}"; // Wave type for metallic sound`;
+            
+            document.getElementById('codePreview').textContent = code;
+        }
+
+        // Update volume display
+        document.getElementById('volume').addEventListener('input', (e) => {
+            document.getElementById('volumeVal').textContent = e.target.value + '%';
+            updateCodePreview();
+        });
+
+        // Update preview when any value changes
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('input', updateCodePreview);
+        });
+
+        // Initialize code preview
+        updateCodePreview();
+    </script>
+</body>
+</html>

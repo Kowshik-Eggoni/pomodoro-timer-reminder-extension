@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pomodoro Options</title>
+    <style>
+      body {
+        font-family: system-ui;
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 18px;
+      }
+      label {
+        display: block;
+        margin: 12px 0 4px;
+      }
+      input[type="time"],
+      input[type="text"] {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      button {
+        margin-top: 16px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 0;
+        background: #111;
+        color: #fff;
+        cursor: pointer;
+      }
+      .reminder {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin: 8px 0;
+      }
+      .reminder input {
+        width: 110px;
+      }
+      .reminder span {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Options</h1>
+    <label>Work day start</label>
+    <input id="workStart" type="time" />
+    <label><input id="autoStart" type="checkbox" /> Start automatically every day</label>
+    <h2>Reminders</h2>
+    <div id="reminders"></div>
+    <div>
+      <input id="rTime" type="time" value="11:15" />
+      <input id="rLabel" type="text" placeholder="Test the webhook" />
+      <button id="add">Add reminder</button>
+    </div>
+    <button id="save">Save</button>
+    <script src="options.js"></script>
+  </body>
+</html>

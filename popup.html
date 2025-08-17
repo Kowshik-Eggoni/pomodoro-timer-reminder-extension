@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pomodoro</title>
+    <style>
+      body {
+        font-family: system-ui, ui-sans-serif;
+        min-width: 260px;
+        margin: 0;
+        padding: 14px;
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 0 8px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin: 8px 0;
+      }
+      .timer {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .pill {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #eee;
+        font-size: 12px;
+      }
+      button {
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .primary {
+        background: #111;
+        color: #fff;
+      }
+      input,
+      select {
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+      .muted {
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Pomodoro</h1>
+    <div class="row"><span>Phase:</span> <span id="phase" class="pill">—</span> <span id="cycle" class="pill">—</span></div>
+    <div class="timer" id="count">00:00</div>
+    <div class="row">
+      <button id="start" class="primary">Start now</button>
+      <button id="stop">Stop</button>
+      <button id="test-sound">Test Sound</button>
+      <a href="options.html" target="_blank" class="muted">Options</a>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
