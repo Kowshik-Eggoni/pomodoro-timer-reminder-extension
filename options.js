@@ -1,6 +1,4 @@
 const DEFAULTS = {
-  workStart: "09:30",
-  autoStartDaily: true,
   reminders: [],
 };
 
@@ -11,8 +9,6 @@ function el(id) {
 async function load() {
   const { settings } = await chrome.storage.local.get("settings");
   const s = { ...DEFAULTS, ...(settings || {}) };
-  el("workStart").value = s.workStart;
-  el("autoStart").checked = !!s.autoStartDaily;
   renderReminders(s.reminders);
 }
 
@@ -54,9 +50,7 @@ el("add").onclick = async () => {
 
 el("save").onclick = async () => {
   const { settings } = await chrome.storage.local.get("settings");
-  const merged = { ...settings, workStart: el("workStart").value, autoStartDaily: el("autoStart").checked };
-  await chrome.storage.local.set({ settings: merged });
-  chrome.runtime.sendMessage({ cmd: "ensure-daily-start" });
+  await chrome.storage.local.set({ settings });
   alert("Saved");
 };
 

@@ -6,8 +6,6 @@ const SETTINGS_KEY = "settings";
 
 // Default settings
 const DEFAULTS = {
-  workStart: "09:30", // HH:MM (24h) local time
-  autoStartDaily: true, // start cycle automatically at workStart
   sound: false, // notification sound is optional (popup can play)
   longBreakEvery: 4, // 4th interval long break
   focusMinutes: 25,
@@ -122,25 +120,11 @@ async function scheduleNext(reason) {
   }
 }
 
-// Start today’s cycle at workStart (or immediately if past that time)
+// Start today's cycle at workStart (or immediately if past that time)
 async function ensureDailyStart() {
-  const s = await getSettings();
-  if (!s.autoStartDaily) return;
-
-  // Create or update a daily start alarm
-  chrome.alarms.create("daily-start", {
-    when: todayAt(s.workStart).getTime(),
-    periodInMinutes: 24 * 60,
-  });
-
-  // If the browser starts after workStart and we haven't started yet, start now
-  const now = new Date();
-  const startTime = todayAt(s.workStart);
-  const st = await getState();
-  if (!st && now.getTime() > startTime.getTime()) {
-    await setState({ cycle: 0, phase: "idle" });
-    await scheduleNext("late-start");
-  }
+  // Auto-start functionality removed - no longer creates daily alarms
+  // Function kept for compatibility but does nothing
+  return;
 }
 
 // Clock-time reminders (local, daily at HH:MM)
@@ -173,10 +157,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   console.log("[alarm]", alarm.name, new Date(alarm.scheduledTime).toLocaleString());
   if (alarm.name === "pomo") {
     await scheduleNext("alarm");
-  } else if (alarm.name === "daily-start") {
-    await clearState();
-    await setState({ cycle: 0, phase: "idle" });
-    await scheduleNext("daily-start");
   } else if (alarm.name.startsWith("reminder:")) {
     const s = await getSettings();
     const id = alarm.name.split(":")[1];
