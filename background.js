@@ -107,10 +107,14 @@ async function scheduleNext(reason) {
   }
 
   if (st.phase === "short" || st.phase === "long") {
-    // back to focus, increment cycle only after short break
+    // back to focus
     const wasLong = st.phase === "long";
     st.phase = "focus";
-    if (!wasLong) {
+    if (wasLong) {
+      // Reset cycle counter after long break
+      st.cycle = 1;
+    } else {
+      // Increment cycle after short break
       st.cycle = st.cycle + 1;
     }
     await setState(st);

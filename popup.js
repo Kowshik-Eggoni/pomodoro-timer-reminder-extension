@@ -5,7 +5,25 @@ async function readState() {
 }
 
 function updateUI(st) {
-  document.getElementById("phase").textContent = st ? st.phase : "idle";
+  const phaseEl = document.getElementById("phase");
+  const phase = st ? st.phase : "idle";
+  
+  // Update phase text with proper display names
+  const phaseNames = {
+    idle: "Idle",
+    focus: "Focus",
+    short: "Short Break",
+    long: "Long Break"
+  };
+  
+  phaseEl.textContent = phaseNames[phase] || phase;
+  
+  // Remove all phase classes and add the current one
+  phaseEl.className = "pill";
+  if (phase) {
+    phaseEl.classList.add(phase);
+  }
+  
   document.getElementById("cycle").textContent = st ? `#${st.cycle || 0}` : "#0";
 }
 
