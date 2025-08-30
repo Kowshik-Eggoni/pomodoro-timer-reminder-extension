@@ -23,7 +23,7 @@ async function kitchenTimerAlarm() {
   // Kitchen timer parameters - pleasant yet noticeable
   const bellFreq = 1800; // Lower, more pleasant bell frequency (Hz)
   const hammerFreq = 12; // Slower, gentler ringing pattern
-  const duration = 6; // Total duration in seconds
+  const duration = 4; // Total duration in seconds
   const volume = 0.08; // Softer volume for comfort
 
   // Create main gain node
